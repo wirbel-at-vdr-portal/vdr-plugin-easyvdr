@@ -230,10 +230,6 @@ bool cEasyPluginManager::BlackListed(std::string PluginName) {
   return (std::find(Blacklist.begin(), Blacklist.end(), PluginName) != Blacklist.end());
 }
 
-bool cEasyPluginManager::FileExists(std::string FileName) {
-  return (access(FileName.c_str(), R_OK) == 0); 
-}
-
 std::string cEasyPluginManager::PluginDirectory() {
   return VdrPluginManager->directory;
 }

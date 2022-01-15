@@ -29,7 +29,6 @@ private:
 
   void  StdErr(const char* f, int l, std::string msg);
   bool  Loaded(std::string PluginName);
-  bool  FileExists(std::string FileName);
   cDll* GetDll(std::string PluginName);
   std::string ConfigName(std::string PluginName);
 public:
