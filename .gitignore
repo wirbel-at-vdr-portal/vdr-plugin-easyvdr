@@ -1,0 +1,5 @@
+po/easyvdr.pot
+.dependencies
+*.o
+easyvdrctl-*
+libvdr-easyvdr.*
