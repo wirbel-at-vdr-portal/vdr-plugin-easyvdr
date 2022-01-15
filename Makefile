@@ -62,11 +62,24 @@ INCLUDES += -I.
 DEFINES += -DPLUGIN_NAME_I18N='"$(PLUGIN)"' -DAPIVERSION='"$(APIVERSION)"'
 #DEFINES += -DDEBUG
 
+#/******************************************************************************
+# * dependencies, add variables here, and checks in target check_dependencies
+# *****************************************************************************/
+LIBREPFUNC=librepfunc
+LIBREPFUNC_MINVERSION=1.1.0
+
+# /* require either PKG_CONFIG_PATH to be set, or, a working pkg-config */
+HAVE_LIBREPFUNC           =$(shell if pkg-config --exists                                   $(LIBREPFUNC); then echo "1"; else echo "0"; fi )
+HAVE_LIBREPFUNC_MINVERSION=$(shell if pkg-config --atleast-version=$(LIBREPFUNC_MINVERSION) $(LIBREPFUNC); then echo "1"; else echo "0"; fi )
+INCLUDES += $(shell pkg-config --cflags-only-I $(LIBREPFUNC))
+LIBS     += $(shell pkg-config --libs-only-l $(LIBREPFUNC))
+LDFLAGS  += $(shell pkg-config --libs-only-L $(LIBREPFUNC))
+
 
 
 ### The main target:
 
-all: $(SOFILE) i18n cmd
+all: check_dependencies $(SOFILE) i18n cmd
 
 ### Implicit rules:
 
@@ -107,7 +120,7 @@ $(I18Npot): $(wildcard *.cpp)
 $(I18Nmsgs): $(DESTDIR)$(LOCDIR)/%/LC_MESSAGES/vdr-$(PLUGIN).mo: $(PODIR)/%.mo
 	install -D -m644 $< $@
 
-.PHONY: i18n
+.PHONY: i18n check_dependencies
 i18n: $(I18Nmo) $(I18Npot)
 
 install-i18n: $(I18Nmsgs)
@@ -115,11 +128,11 @@ install-i18n: $(I18Nmsgs)
 ### Targets:
 
 cmd: $(CMDOBJS)
-	$(CXX) $(CXXFLAGS) $(CMDOBJS) -o $(CMDFILE)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(CMDOBJS) $(LIBS) -o $(CMDFILE)
 
 $(SOFILE): $(OBJS)
 	@echo LD $@
-	$(Q)$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared $(OBJS) -o $@
+	$(Q)$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared $(OBJS) $(LIBS) -o $@
 
 install-lib: $(SOFILE)
 	install -D $^ $(DESTDIR)$(LIBDIR)/$^.$(APIVERSION)
@@ -143,3 +156,16 @@ dist: $(I18Npo) clean
 clean:
 	@-rm -f $(PODIR)/*.mo $(PODIR)/*.pot
 	@-rm -f $(OBJS) $(CMDOBJS) $(DEPFILE) *.so *.tgz core* *~ $(CMDFILE)
+
+#/******************************************************************************
+# * dependencies, check them here and provide message to user.
+# *****************************************************************************/
+check_dependencies:
+ifeq ($(HAVE_LIBREPFUNC),0)
+	@echo "ERROR: dependency not found: $(LIBREPFUNC) >= $(LIBREPFUNC_MINVERSION)"
+	exit 1
+endif
+ifeq ($(HAVE_LIBREPFUNC_MINVERSION),0)
+	@echo "ERROR: dependency $(LIBREPFUNC) older than $(LIBREPFUNC_MINVERSION)"
+	exit 1
+endif

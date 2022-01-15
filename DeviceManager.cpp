@@ -9,7 +9,6 @@
 #include <vdr/dvbdevice.h>
 #include <vdr/channels.h>
 #include "DeviceManager.h"
-#include "FileList.h"
 #include "NotifyBase.h"
 #define ToStdErr(msg) if (debug) StdErr(__PRETTY_FUNCTION__,__LINE__,msg)
 
@@ -131,7 +130,7 @@ void cDeviceManager::NewAdapter(std::string Adapter) {
 
      std::string FirstFrontend;
      FirstFrontend = path + "/frontend" + std::to_string(demux);
-     if (not File::Exists(FirstFrontend)) {
+     if (not FileExists(FirstFrontend)) {
         ToStdErr(Adapter + " -> no frontend.");
         continue;
         }

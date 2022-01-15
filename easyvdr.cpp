@@ -8,10 +8,10 @@
 #include <iostream>
 #include <vdr/plugin.h>
 #include "IniFile.h"
-#include "FileList.h"
 #include "EasyPluginManager.h"
 #include "DeviceManager.h"
 #include "MainMenu.h"
+#include "repfunc.h"
 
 
 /*******************************************************************************
@@ -30,7 +30,7 @@ cDeviceManager DeviceManager;
  ******************************************************************************/
 class cPluginEasyvdr : public cPlugin {
 private:
-  static constexpr const char* s_version            = "2021.01.24.1++";
+  static constexpr const char* s_version            = "2022.0x.xx-dev";
   static constexpr const char* s_description        = "setup helper plugin";
   static constexpr const char* s_mainmenuentry      = "setup helper";
   static constexpr const char* s_plugin_config_file = "/etc/vdr/conf.d/*_settings.ini";

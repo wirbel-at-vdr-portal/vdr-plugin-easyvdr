@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <sys/inotify.h>
 #include <limits.h>
-#include "ThreadBase.h"
+#include "repfunc.h"
 
 class iNotifyBase : public ThreadBase {
 private:

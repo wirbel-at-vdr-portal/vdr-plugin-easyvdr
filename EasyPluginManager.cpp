@@ -16,7 +16,7 @@
 #include <vdr/device.h>
 #include <vdr/skins.h>
 #include "EasyPluginManager.h"
-#include "FileList.h"
+#include "repfunc.h"
 #include "IniFile.h"
 
 /*******************************************************************************

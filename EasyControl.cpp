@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <cstring>
 #include <unistd.h>
-#include "FileList.h"
+#include "repfunc.h"
 #include "IniFile.h"
 
 
@@ -214,10 +214,6 @@ void ToStdOut(std::string s) {
 
 std::string FileExt(void) {
   return ".so." + std::string(APIVERSION);
-}
-
-bool FileExists(std::string FileName) {
-  return (access(FileName.c_str(), R_OK) == 0); 
 }
 
 std::vector<std::string> AvailablePlugins(std::string PluginDir) {
