@@ -1,0 +1,95 @@
+VDR Plugin 'easyvdr' Revision History
+-------------------------------------
+See the README file for copyright information
+and how to reach the author.
+-------------------------------------
+
+
+2020-05-25: Version 2020.05.25
+- Create new Plugin for the EasyVDR distribution.
+
+2020-06-20: Version 2020.06.20
+- first Version
+- Plugin load,unload,AutoLoad via Menu.
+
+2020-06-26: Version 2020.06.26
+- bug fix, ini pairs with multiple '=' delimiters
+  for xineliboutput.
+- initial version of a commandline tool, at the moment
+  it is called "easyvdrctl-2.4.1", where 2.4.1 the VDR API version is.
+  This tool is work-in-progress.
+
+2020-06-27: Version 2020.06.27
+- move PluginManager.AutoLoad()
+  from cPluginEasyvdr::Initialize(void) to cPluginEasyvdr::Start()
+- fix Makefile install target
+
+2020-06-28:
+- still problems with autoload with xineliboutput
+  rewrite of LoadPlugins and AutoLoad.
+  Revert move PluginManager.AutoLoad() and call VDRs PluginManager
+  instead.
+
+2020-07-xx:
+- change return type of TIniFile::Get from 'auto' to
+  std::vector<std::tuple<std::string,std::string,std::string>>::iterator
+  (backward compat with older gcc)
+
+2020-11-08:
+- add Copyright notice which was missing yet.
+- put this version to my webpage as easyvdr distri is dead now,
+  otherwise no changes to 2020-07-xx
+
+2021-01-23:
+- ThreadBase.h
+  - add SleepMinutes()
+  - add SleepSeconds()
+  - add hint to series Plugin
+
+- IniFile.{cpp,h}
+  - add Clear()
+  - ReadFile() now calls Clear()
+  - dos to unix conversion
+  - add hint to series Plugin
+
+- change Plugin description from "easyvdr setup helper plugin" to "setup helper plugin"
+- change default mainmenu name from "easyvdr" to "setup helper"
+- update vdr patch to vdr-2.4.6
+- increase Version to 2021.01.23
+
+2021-01-23.1:
+- FileList.h
+  - add hint to ddci3 Plugin 
+- increase Version to 2021.01.23.1
+
+2021-01-24:
+- bug hunting: WHY DO PLUGINS DON'T LOAD THEIR SETUP.CONF VALUES? hmm..
+
+- dont plot list of found Plugins anymore, be less verbose here.
+
+- new function void cEasyPluginManager::LoadSetup()
+  - loads setup.conf Plugin setups at Initialize()
+
+- cEasyPluginManager::AutoLoad()
+  - many parts where similar to cEasyPluginManager::LoadPlugin(),
+    call LoadPlugin() instead of duplicate sequence of calls.
+
+- cEasyPluginManager::LoadPlugin()
+  - remove check for existing files. VDR should do that.
+  - move numdevices check earlier
+  - remove local var PluginFile.
+  - new Param AutoLoad is used, if called from cEasyPluginManager::AutoLoad()
+  - only if used on VDR start in AutoLoad, Initialize() and Start() are called for Plugins.
+
+- cEasyPluginManager, new private member
+     std::vector<std::tuple<std::string,std::string,std::string>> PluginSetup;
+  - holds tuples of <PluginName,Name,Value> for Plugins setup.
+
+- increase Version to 2021.01.24
+
+
+
+2021-01-24.1:
+- History update. Beside Version increase no further changes.
+- increase Version to 2021.01.24.1
+

@@ -1,0 +1,204 @@
+This is a "plugin" for the Video Disk Recorder (VDR).
+
+Written by:                  Winfried Koehler <nvdec A.T. quantentunnel D.O.T. de >
+Project's homepage:          https://www.gen2vdr.de/wirbel/easyvdr
+Latest version available at: Project's Homepage.
+License:                     GPL v2
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+See the file COPYING for more information.
+
+
+Description:
+This Plugin is a type of setup helper plugin for the EasyVdr distribution,
+see https://www.easy-vdr.de.
+It's first purpose is the management of VDR plugins. Load/Unload/AutoLoad of
+Plugins via Menu entry. Other purposes may (or may not..) follow.
+
+
+
+Switching to German starting from here - sorry. Use a translation program if
+needed.
+
+
+
+
+ /******************************************************************************
+ * Die easyvdr Plugin Konfigurationsdatei.
+ ******************************************************************************/
+Dieses Plugin startet nicht ohne eine vorhandene und gültige Konfigurationsdatei
+im ini Datei Format. Der Pfad zur Konfigurationsdatei ist
+
+/etc/vdr/conf.d/easyvdr.ini
+
+Soll ein anderer Pfad benutzt werden, dann kann der Pfad zur Konfigurations-
+datei dem Plugin per Kommandozeilenoption -c übergeben werden.
+
+-P easyvdr -c <FULL_PATH>
+
+In der Konfigurationsdatei des Plugins können weitere Einstellungen vorgenommen
+werden.
+
+
+ /******************************************************************************
+ * Der Zweck des Plugins
+ ******************************************************************************/
+Dieses Plugin startet andere Plugins, nach den Einstellungen je Plugin ini
+Datei. Je Plugin gibt es eine Datei <PLUGIN_NAME>_settings.ini, wobei diese sich
+per default im Ordner /etc/vdr/conf.d befinden. Dieser Pfad kann in der Konfigu-
+rationsdatei mit der Einstellung PluginConfigFile verändert werden.
+
+PluginConfigFile = /etc/vdr/conf.d/*_settings.ini
+
+Damit dieses Plugin alle anderen Plugins starten kann, muss es das einzige
+Plugin sein, welches in der VDR Befehlszeile mit -P gestartet wird.
+
+Zusätzlich kann dieses Plugin dvb budget cards nach dem Start von VDR einbinden.
+
+
+ /******************************************************************************
+ * Das verwendete Dateiformat der ini Dateien.
+ ******************************************************************************/
+Jede ini Datein beginnt mit der Definition einer Sektion in eckigen Klammern,
+"square brackets" und kann einen oder mehrere Sektionen haben. Zeichen vor oder
+nach den Klammern sind nicht erlaubt, und es muss eine öffnende und eine
+schließende Klammer geben. Alle Wertepaare nach dem Beginn einer Sektion gehören
+zu dieser Sektion.
+
+Beispiel:
+
+[Common]
+   (..)
+   (..)
+[Sektion2]
+   (..)
+
+
+Jede Sektion hat Null oder mehr Werte Paare, die per
+Gleichheitszeichen '=' voneinander getrennt sind. Bei String Einträgen darf der
+Wert nach dem '=' entfallen, das entspricht einem leeren String. Bei Einträgen,
+welche als bool, int oder double interpretiert werden, führt ein leerer Wert zum
+Fehler.
+
+Beispiele:
+[EasyPluginManager]
+Args=-d2
+AutoRun=true
+Stop=true
+
+
+Zu jedem Eintrag darf es in der (unbenutzten) Sektion [HelpText] Hilfetexte
+geben, z.B.
+
+[HelpText]
+EasyPluginManager::AutoRun = true/false : startup definition.
+
+
+
+
+Kommentare sind im Dateiformat nicht vorgesehen, aktualisiert das Plugin eine
+ini Datei, so wird die gesamte Datei neu geschrieben. Die Reihenfolge der
+Sektionen und Einträge wird beim Schreiben alphabetisch sortiert.
+
+Beim Lesen der Datei dagegen werden Zeilen welche mit einer Raute '#' starten
+ignoriert, gleiches gilt für Leerzeilen.
+
+
+Alle Zeilen, welche weder Kommentar, noch Sektion, noch Wertepaar sind, werden
+nicht verstanden. 
+
+
+
+ /******************************************************************************
+ * Die Einstellungen je Plugin.
+ ******************************************************************************/
+Alle Einstellungen je Plugin finden sich in der Sektion EasyPluginManager.
+
+Hier am Beispiel des satip plugins, Dateiname also satip_settings.ini:
+
+
+[EasyPluginManager]
+Args=-d2
+AutoRun=true
+Stop=true
+
+
+
+Args      : die Commandline des Plugins, darf leer sein.
+AutoRun   : true/false, soll das Plugin beim Start von VDR gestartet werden.
+Stop      : true/false, darf das Plugin wieder gestoppt werden, solange VDR
+            läuft. Ignoriert für device type Plugins.
+
+
+Alle Einstelleungen können mit dem Commandline Tool easyvdrctl-2.4.1 bearbeitet
+werden, wobei 2.4.1 die VDR Version ist. Dieses tool wird nach /usr/local/bin
+installiert.
+
+
+ /******************************************************************************
+ * Der DVB Device Manager.
+ ******************************************************************************/
+Dieses Plugin beobachtet zwei Ordner mit der Kernel inotify Schnittstelle.
+1) /dev -> falls /dev/dvb existiert, wird ein neuer Beobachter 2) für /dev/dvb
+   erzeugt.
+2) /dev/dvb, siehe 1), dort werden alle neuen Ordner beobachtet.
+
+Sobald das Plugin vom Kernel benachrichtigt wird, dass ein neuer Ordner namens
+adapterN in /dev/dvb erzeugt wurde, sucht das Plugin dort nach demux und
+frontend devices nodes.
+
+Sobald eine unbekannte Kombination aus adapter, demux und frontend erkannt wird,
+versucht das Plugin ein passendes VDR cDvbDevice zu erzeugen.
+
+Voraussetzung: (e)udev für /dev und Kernel Konfiguration mit inotify.
+
+Die Einstellungen zum DeviceManager in der easyvdr.ini:
+
+[DeviceManager]
+Enabled = true
+SettlingTime = 600
+Debug = true
+MaxDevices = 100
+
+
+Enabled      : true/false, soll der Device Manager gestartet werden.
+SettlingTime : integer 0..N, die Zeit zwischen Anlegen eines neuen Ordners
+               /dev/dvb/adapterN und dem vollständigen Ladens des DVB
+               Treibers in Millisekunden. default: 500
+Debug        : true/false, erweiterte Meldungen nach stderr
+MaxDevices   : integer 1..N, die maximale Anzahl von dvb devices,
+               die das Plugin erzeugen darf. Diese Zahl wird durch den VDR
+               selbst zusätzlich auf MAXDEVICES limitiert (z.B. 16)
+
+
+ /******************************************************************************
+ * Hinweise zum Menü.
+ ******************************************************************************/
+Das Plugin erstellt einen Hauptmenü Eintrag.
+
+Die Position des Eintrags wird von VDR bestimmt, es gibt im Plugin keine
+Möglichkeit, die Position zu ändern. Bei einem ungepatchten VDR wird die Position
+zwischen "Aufzeichnungen" und "Einstellungen" sein.
+
+Der Name des Hauptmenü Eintrages kann verändert werden. Der passende ini Eintrag
+in der Plugin Konfigurationsdatei lautet
+
+Common::MainMenuEntry
+
+Per Voreinstellung lautet der Eintrag wie das Plugin, also 'easyvdr'.
+
+
+
+
+In Einstellungen->Plugins taucht das Plugin ebenso auf, die Beschreibung des
+Plugin Eintrages kann per
+
+Common::Description
+
+verändert werden.
+
+
+
